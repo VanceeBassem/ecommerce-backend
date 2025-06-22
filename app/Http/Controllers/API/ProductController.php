@@ -22,30 +22,32 @@ class ProductController extends Controller
                 ->paginate(10);
         });
 
+        $products->getCollection()->transform(function ($product) {
+            $product->image_url = $product->image_url;
+            return $product;
+        });
+
         return response()->json($products);
     }
-    public function store(Request $request)
+   public function store(Request $request)
 {
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'price' => 'required|numeric|min:0',
-        'stock' => 'required|integer|min:0',
+    $validated = $request->validate([
+        'name' => 'required|string',
+        'price' => 'required|numeric',
+        'stock' => 'required|integer',
+        'category' => 'nullable|string',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
     ]);
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('products', 'public');
+        $validated['image'] = $imagePath; // save path in DB
     }
 
-    $product = Product::create([
-        'name' => $request->name,
-        'price' => $request->price,
-        'stock' => $request->stock,
-    ]);
+    $product = Product::create($validated);
 
-    return response()->json([
-        'message' => 'Product created successfully.',
-        'product' => $product,
-    ], 201);
-  }
+    return response()->json($product, 201);
+}
+
 }
 

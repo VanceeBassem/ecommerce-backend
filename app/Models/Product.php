@@ -8,12 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'price', 'stock']; 
+    protected $fillable = ['name', 'price', 'stock', 'image']; 
     public function orders()
     {
         return $this->belongsToMany(Order::class)
             ->withPivot('quantity')
             ->withTimestamps();
     }
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
+
 
 }
