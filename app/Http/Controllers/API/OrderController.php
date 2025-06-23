@@ -27,7 +27,6 @@ class OrderController extends Controller
     try {
         $total = 0;
 
-        // Create order with placeholder total
         $order = Order::create([
             'user_id' => $user->id,
             'total' => 0,
@@ -42,7 +41,6 @@ class OrderController extends Controller
 
             $product->decrement('stock', $item['quantity']);
 
-            // Insert into pivot table (order_product)
             $order->products()->attach($product->id, [
                 'quantity' => $item['quantity']
             ]);
